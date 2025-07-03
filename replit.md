@@ -118,6 +118,10 @@ This is a full-stack Call Center CRM system built with modern web technologies. 
   - Implemented responsive mobile sidebar with collapsible navigation
   - Fixed login page layout per user specifications
   - Added proper Call Center logo across all dashboard components
+  - Fixed Excel parsing for Bangladeshi phone numbers with proper validation
+  - Added xlsx library for proper Excel file processing
+  - Implemented support for multiple Bangladeshi phone number formats (+8801XXXXXXXXX, 8801XXXXXXXXX, 01XXXXXXXXX)
+  - Enhanced Number Upload UI with format guidelines and better error handling
 - June 30, 2025. Initial setup
 
 ## User Preferences

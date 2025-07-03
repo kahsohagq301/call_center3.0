@@ -236,7 +236,7 @@ export default function CallsSection() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      {getCategoryBadge(call.category)}
+                      {getCategoryBadge(call.category || null)}
                     </TableCell>
                   </TableRow>
                 ))}

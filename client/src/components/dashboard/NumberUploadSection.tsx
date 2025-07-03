@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { User, NumberUpload } from "@/types";
+import * as XLSX from 'xlsx';
 
 export default function NumberUploadSection() {
   const [selectedAgent, setSelectedAgent] = useState<string>("");
@@ -78,30 +79,68 @@ export default function NumberUploadSection() {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const data = e.target?.result as string;
-          // Simple CSV parsing for Excel files saved as CSV
-          // In a real implementation, you'd use a library like SheetJS
-          const lines = data.split('\n');
+          const data = e.target?.result as ArrayBuffer;
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Get the first worksheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert worksheet to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
           const phoneNumbers: string[] = [];
           
-          lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed && /^\d+$/.test(trimmed)) {
-              phoneNumbers.push(trimmed);
+          // Process each row
+          jsonData.forEach((row: any) => {
+            if (Array.isArray(row) && row.length > 0) {
+              // Check each cell in the row for phone numbers
+              row.forEach((cell: any) => {
+                if (cell) {
+                  const cellValue = cell.toString().trim();
+                  
+                  // Validate Bangladeshi phone number format
+                  if (isValidBangladeshiNumber(cellValue)) {
+                    phoneNumbers.push(cellValue);
+                  }
+                }
+              });
             }
           });
           
+          if (phoneNumbers.length === 0) {
+            reject(new Error("No valid Bangladeshi phone numbers found in file"));
+            return;
+          }
+          
           resolve(phoneNumbers);
         } catch (error) {
-          reject(new Error("Failed to parse Excel file"));
+          console.error("Excel parsing error:", error);
+          reject(new Error("Failed to parse Excel file. Please ensure it's a valid .xlsx file"));
         }
       };
       reader.onerror = () => reject(new Error("Failed to read file"));
       
-      // For simplicity, we'll treat Excel files as text
-      // In production, use SheetJS or similar library
-      reader.readAsText(file);
+      // Read as ArrayBuffer for proper Excel parsing
+      reader.readAsArrayBuffer(file);
     });
+  };
+
+  const isValidBangladeshiNumber = (number: string): boolean => {
+    // Remove any spaces or dashes
+    const cleaned = number.replace(/[\s-]/g, '');
+    
+    // Check for Bangladeshi phone number patterns:
+    // +8801XXXXXXXXX (11 digits after +880)
+    // 8801XXXXXXXXX (13 digits starting with 880)
+    // 01XXXXXXXXX (11 digits starting with 01)
+    const patterns = [
+      /^\+8801[0-9]{8,9}$/,  // +8801XXXXXXXX or +8801XXXXXXXXX
+      /^8801[0-9]{8,9}$/,    // 8801XXXXXXXX or 8801XXXXXXXXX  
+      /^01[0-9]{8,9}$/       // 01XXXXXXXX or 01XXXXXXXXX
+    ];
+    
+    return patterns.some(pattern => pattern.test(cleaned));
   };
 
   const handleUpload = async () => {
@@ -173,7 +212,15 @@ export default function NumberUploadSection() {
       <Card>
         <CardHeader>
           <CardTitle>Upload Numbers</CardTitle>
-          <p className="text-sm text-gray-600">Select a CC agent and upload an Excel file containing phone numbers</p>
+          <p className="text-sm text-gray-600">Select a CC agent and upload an Excel file containing Bangladeshi phone numbers</p>
+          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm font-medium text-blue-900">Supported Number Formats:</p>
+            <ul className="text-sm text-blue-800 mt-1 space-y-1">
+              <li>• +8801XXXXXXXXX (with country code)</li>
+              <li>• 8801XXXXXXXXX (without + symbol)</li>
+              <li>• 01XXXXXXXXX (local format)</li>
+            </ul>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
