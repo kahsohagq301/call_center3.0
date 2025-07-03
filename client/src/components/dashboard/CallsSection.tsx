@@ -220,13 +220,14 @@ export default function CallsSection() {
                     </TableCell>
                     <TableCell>
                       <Select 
-                        value={call.category || undefined} 
+                        value={call.category || ""} 
                         onValueChange={(value) => handleCategoryChange(call.id, value)}
                       >
                         <SelectTrigger className="w-40">
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="">Select Category</SelectItem>
                           <SelectItem value="interested">Interested</SelectItem>
                           <SelectItem value="not_interested">Not Interested</SelectItem>
                           <SelectItem value="busy">Busy</SelectItem>
