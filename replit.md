@@ -106,8 +106,11 @@ This is a full-stack Call Center CRM system built with modern web technologies. 
 ## Changelog
 
 - July 3, 2025. Completed migration from Replit Agent to standard Replit environment
-  - Migrated from Neon PostgreSQL to SQLite for development
-  - Fixed session store connection issues
+  - Successfully migrated from SQLite to PostgreSQL using Neon serverless database
+  - Updated database schema to use PostgreSQL-specific types and features
+  - Fixed session store connection issues with PostgreSQL session storage
+  - Implemented automatic database initialization with default admin user
+  - Updated all database interactions to use PostgreSQL-compatible queries
   - Added Account Management functionality for Super Admin users
   - Implemented user CRUD operations with role-based access
   - Created comprehensive Account Management UI with table, modals, and user actions

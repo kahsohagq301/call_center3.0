@@ -1,41 +1,41 @@
-import { sqliteTable, text, integer, blob, real } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial, timestamp, boolean } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Session storage table for authentication
-export const sessions = sqliteTable("sessions", {
+export const sessions = pgTable("sessions", {
   sid: text("sid").primaryKey(),
   sess: text("sess").notNull(),
-  expire: text("expire").notNull(),
+  expire: timestamp("expire").notNull(),
 });
 
 // Users table
-export const users = sqliteTable("users", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   phone: text("phone"),
   role: text("role").notNull(), // 'super_admin', 'cc_agent', 'cro_agent'
   profileImage: text("profile_image"),
-  createdAt: text("created_at").default(sql`(datetime('now'))`),
-  updatedAt: text("updated_at").default(sql`(datetime('now'))`),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Call numbers table
-export const callNumbers = sqliteTable("call_numbers", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const callNumbers = pgTable("call_numbers", {
+  id: serial("id").primaryKey(),
   phoneNumber: text("phone_number").notNull(),
   assignedAgentId: integer("assigned_agent_id").references(() => users.id),
   category: text("category"), // 'switched_off', 'busy', 'no_answer', 'not_interested', 'interested'
-  createdAt: text("created_at").default(sql`(datetime('now'))`),
-  categorizedAt: text("categorized_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  categorizedAt: timestamp("categorized_at"),
 });
 
 // Leads table
-export const leads = sqliteTable("leads", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const leads = pgTable("leads", {
+  id: serial("id").primaryKey(),
   customerName: text("customer_name").notNull(),
   customerNumber: text("customer_number").notNull(),
   biodata: text("biodata"), // File path or URL
@@ -43,29 +43,29 @@ export const leads = sqliteTable("leads", {
   agentId: integer("agent_id").references(() => users.id),
   status: text("status").default("active"), // 'active', 'transferred'
   transferredTo: integer("transferred_to").references(() => users.id),
-  createdAt: text("created_at").default(sql`(datetime('now'))`),
-  updatedAt: text("updated_at").default(sql`(datetime('now'))`),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Reports table
-export const reports = sqliteTable("reports", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const reports = pgTable("reports", {
+  id: serial("id").primaryKey(),
   agentId: integer("agent_id").references(() => users.id),
   onlineCalls: integer("online_calls").notNull(),
   offlineCalls: integer("offline_calls").notNull(),
   totalLeads: integer("total_leads").notNull(),
-  reportDate: text("report_date").default(sql`(datetime('now'))`),
-  createdAt: text("created_at").default(sql`(datetime('now'))`),
+  reportDate: timestamp("report_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Daily tasks table
-export const dailyTasks = sqliteTable("daily_tasks", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const dailyTasks = pgTable("daily_tasks", {
+  id: serial("id").primaryKey(),
   agentId: integer("agent_id").references(() => users.id),
-  taskDate: text("task_date").default(sql`(datetime('now'))`),
+  taskDate: timestamp("task_date").defaultNow(),
   leadsAdded: integer("leads_added").default(0),
   leadsTransferred: integer("leads_transferred").default(0),
-  reportSubmitted: integer("report_submitted").default(0), // SQLite uses integer for boolean
+  reportSubmitted: boolean("report_submitted").default(false), // PostgreSQL uses boolean
 });
 
 // Relations
