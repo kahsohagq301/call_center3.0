@@ -1,0 +1,50 @@
+Final Message for Replit Developer — Design & UI Improvements Request
+Subject: UI/UX Update Required – Login Page, Background, Mobile View, Logo, and Sidebar Issues
+
+Dear Developer,
+
+Thank you for your work on the Call Center CRM System. The project is progressing well, but I have noticed several important UI/UX issues that need immediate improvement to ensure a complete and professional experience, especially across mobile and desktop views.
+
+🔹 1. Login Page Adjustments
+Please update the login page with the following:
+
+Move the text “Call Center Management System” to the top-left corner of the page, styled smaller and neatly aligned.
+
+Remove the subtext:
+“Streamline your call center operations with our comprehensive CRM solution. Manage leads, track calls, and optimize performance.”
+
+Keep the Achievement badges (500+ Active Agents, 10K+ Daily Calls, 95% Success Rate) in their current position.
+
+Update the background image:
+
+Remove the dark overlay or blur/opacity layer currently covering it.
+
+Use the background image provided by me clearly and visibly, without any masking or filtering.
+
+Keep the login/registration box and all other layout components unchanged.
+
+🔹 2. Mobile Responsiveness
+On mobile view, the layout is not optimized:
+
+The left sidebar (menu) after login cannot be minimized or hidden.
+
+This causes major display issues and breaks the mobile user experience.
+
+Please ensure the sidebar is collapsible or toggleable, especially on smaller screens.
+
+🔹 3. Logo Consistency
+Across different areas (Login page, dashboards, headers), the wrong or inconsistent company logo has been used.
+
+Please make sure the correct Call Center CRM logo is used consistently:
+
+On the Login page
+
+In the Dashboard (for all account roles: Super Admin, CC Agent, CRO Agent)
+
+In top-right and sidebar areas
+
+🔧 Summary
+These issues are small in appearance but significantly affect the usability and impression of the system. I request you to treat them with priority and provide the fixes as part of the next update.
+
+If you need any assets (image/logo) again, I can provide them.
+Thanks for your hard work and support.

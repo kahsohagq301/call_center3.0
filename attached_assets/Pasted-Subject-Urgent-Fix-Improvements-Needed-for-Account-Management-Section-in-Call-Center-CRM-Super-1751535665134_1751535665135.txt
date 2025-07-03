@@ -1,0 +1,68 @@
+Subject: Urgent Fix & Improvements Needed for "Account Management" Section in Call Center CRM (Super Admin Role)
+
+Dear Developer,
+
+I appreciate your work so far on the Call Center CRM project. However, I’ve identified a key area that is currently not functioning as required — the “Account Management” section under the Super Admin role.
+
+Here are the specific improvements and corrections that are needed:
+
+🔧 FUNCTIONAL ISSUES:
+Account Management table is not working
+
+Currently, no accounts are being displayed.
+
+Super Admin is unable to view or manage other users (CC Agent / CRO Agent), which is a critical flaw.
+
+✅ REQUIRED FEATURES (As per original requirements):
+Please implement the following:
+
+A. Account Management Table for Super Admin:
+The Super Admin must be able to view all existing accounts with the following columns in a table:
+
+Account Creation Date
+
+Agent Name
+
+Account Role Type (Super Admin / CC Agent / CRO Agent)
+
+Actions (Three-dot menu):
+
+Edit Account
+
+Delete Account
+
+✅ The table must dynamically update when a new account is created or removed.
+
+B. “Add Account” Button (Top-left):
+When clicked, it should open a popup modal with the following fields:
+
+Agent Name (Text input)
+
+Agent Email (Text input)
+
+Official Number (with country code picker)
+
+Create Password
+
+Confirm Password
+
+Upload Profile Picture (square format)
+
+Select Account Role (Dropdown: Super Admin / CC Agent / CRO Agent)
+
+[Create] Button → on submit, saves the account and updates the table.
+
+⚙️ BACKEND & DATABASE:
+All accounts must be saved to the backend properly.
+
+Ensure role-based user classification is stored clearly (e.g., "role": "CC Agent").
+
+On successful creation/deletion/update, the Account Management table must reflect it instantly.
+
+🔍 Summary
+The Super Admin role must have full visibility and control over all user accounts in the system. Without this, the CRM fails to deliver its core purpose. Please treat this fix as urgent and high priority.
+
+If you need any clarification, I am available to assist.
+
+Thank you.
+

@@ -1,0 +1,524 @@
+🔷 Project Name: Call Center CRM System
+
+🟩 Key Features:
+Data Upload
+
+
+Data Download
+
+
+Data Analysis
+
+
+Multi-Account Monitoring
+
+
+Daily Report Analysis
+
+
+
+🟦 Login Page Design
+Page Details:
+The company logo will be at the top-right corner (uploaded separately).
+
+
+On the right side, a box will be displayed with the text “Call Center” at the top, followed by a smaller text “Access Panel”.
+
+
+Below these texts, there will be two buttons:
+
+
+✅ Login (Button)
+On click, a popup modal will open with:
+
+
+Title: “Login”
+
+
+Fields:
+
+
+Email Address (manual input)
+
+
+Password (hidden input)
+
+
+Below that, there’s a "Forgot Password" option.
+
+
+Clicking it will prompt the user to enter a code.
+
+
+If the user types: sohagq301, password reset will be allowed.
+
+
+Below the form, there will be a Login button.
+
+
+If credentials are correct, login will complete.
+
+
+🟨 Registration (Button)
+On click, a popup modal opens with:
+
+
+Title: “Complete the Information”
+
+
+Fields:
+
+
+Enter Name (manual input)
+
+
+Official Number (manual input)
+
+
+Upload Profile Picture (upload field linked)
+
+
+Select Account Type:
+
+
+CC Agent
+
+
+CRO Agent
+
+
+Create Password
+
+
+Confirm Password
+
+
+After filling out the form, clicking the Create button will successfully create an account and redirect the user to the homepage after login.
+
+
+
+🖼️ Design Requirements:
+Must be a fully professional login page
+
+
+Use the provided background image
+
+
+Company logo must be positioned as instructed
+
+
+High-quality animations
+
+
+Buttons and colors must match the company logo
+
+
+Responsive design for both desktop (webview) and mobile
+
+
+
+🟧 Account Roles:
+Super Admin
+
+
+CC Agent
+
+
+CRO Agent
+
+
+
+🎨 Post-Login UI (Common for All Roles):
+Top-right: Profile picture, Profile Name, and Account Role label
+
+
+Top-left & bottom-left: Company logo
+
+
+Left sidebar: Menu
+
+
+Bottom-left: Settings icon (as a button)
+
+
+Note: UI will be the same across roles, but feature access depends on the role
+Clean, high-quality animations
+
+
+All text & button colors should match the logo
+
+
+Fully user-friendly and professionally responsive
+
+
+
+🟩 CC Agent Role: Detailed Features
+Menu:
+Dashboard
+
+
+Calls Section
+
+
+Lead Section
+
+
+Report Section
+
+
+Settings
+
+
+
+📊 Dashboard:
+Top Overview Section:
+
+
+Total Calls
+
+
+Total Leads
+
+
+Transferred Leads
+
+
+Below: Today’s Task:
+
+
+Add Lead (Min 5, Max Unlimited)
+
+
+Transfer Lead (Min 3, Max Unlimited)
+
+
+Submit Report (Once per day)
+
+
+Until the task is completed, a red mark shows. Once completed, it turns green. Tasks reset daily.
+
+📞 Calls Section:
+Top Center:
+
+
+Search (input number only)
+
+
+Category (dropdown selection)
+
+
+Table Columns:
+No.
+
+
+Customer Number
+
+
+Call:
+
+
+Clicking opens a dialer (auto-selectable)
+
+
+Category Button (opens selection menu):
+
+
+Switched Off
+
+
+Busy
+
+
+No Answer
+
+
+Not Interested
+
+
+Interested
+
+
+Categories can be filtered. Numbers come from Super Admin uploads.
+Numbers with a selected category are auto-deleted after 24 hours.
+
+
+Unselected numbers are never deleted.
+
+
+Additional Features:
+Refresh Button (reorders numbers: categorized go down, others up)
+
+
+100 records per page
+
+
+Pagination with next/back
+
+
+
+🧾 Lead Section:
+“Add Lead” button (opens popup):
+
+
+Customer Name
+
+
+Customer Number (with country code)
+
+
+Customer Biodata (PDF/Word, 1–10MB)
+
+
+Description/Notes
+
+
+Submit
+
+
+Table Columns:
+No.
+
+
+Date
+
+
+Customer Number
+
+
+Action (three-dot menu):
+
+
+Edit
+
+
+Transfer: opens popup to select a CRO Agent; transferred lead goes to their “Received Leads” section
+
+
+
+📋 Report Section:
+Add Report button → popup with:
+
+
+Online Call (input)
+
+
+Offline Call (input)
+
+
+Total Leads (input)
+
+
+Submit adds to info table
+
+
+Table Columns:
+Date
+
+
+Agent Name
+
+
+Total Call (auto sum of online + offline)
+
+
+Total Lead
+
+
+Includes filtering and minor search
+
+⚙️ Settings:
+Editable:
+
+
+Name
+
+
+Profile Picture (square upload)
+
+
+Email
+
+
+Phone Number
+
+
+Password (changeable)
+
+
+Save button updates info
+
+
+Logout button at bottom-right
+
+
+
+🟩 CRO Agent Role
+Menu:
+Dashboard
+
+
+Received Leads
+
+
+Settings
+
+
+UI will be the same as CC Agent
+
+📊 Dashboard:
+(You may define an appropriate overview here or let the system auto-generate it.)
+
+📥 Received Leads Table:
+Date
+
+
+Agent Name (who sent the lead)
+
+
+Customer Number
+
+
+Action (Open button opens popup showing):
+
+
+Customer Name
+
+
+Customer Number
+
+
+Biodata (with download option)
+
+
+Notes
+
+
+
+⚙️ Settings:
+Identical to CC Agent’s settings
+
+🟩 Super Admin Role
+Login Credentials:
+Email: sohaghasunbd@gmail.com
+
+
+Password: sohagq301
+
+
+Menu:
+Dashboard
+
+
+Lead Analysis
+
+
+Report Analysis
+
+
+Number Upload
+
+
+Account Management
+
+
+Settings
+
+
+
+📈 Dashboard:
+Top Analytics Section:
+
+
+Total Leads
+
+
+Total Calls
+
+
+Total Accounts
+
+
+Total Transferred Leads
+
+
+
+📊 Lead Analysis:
+Table Columns:
+
+
+No
+
+
+Date
+
+
+Total Leads
+
+
+Transferred Leads
+
+
+Clicking shows who transferred to whom for better insights
+
+📋 Report Analysis:
+Shows reports submitted by CC Agents in table format
+
+
+Includes data visualization and filtering
+
+📤 Number Upload:
+Shows CC Agent names
+
+
+Each has an Upload button
+
+
+Upload Excel file → Submit → Numbers go to that CC Agent's Calls section
+
+
+
+👥 Account Management:
+Shows all accounts (edit/delete options)
+
+
+Top-left: “Add Account” button (opens popup with):
+
+
+Agent Name
+
+
+Agent Email
+
+
+Official Number (with country code selection)
+
+
+Create & Confirm Password
+
+
+Upload Profile Picture (square)
+
+
+Select Account Role:
+
+
+Super Admin
+
+
+CC Agent
+
+
+CRO Agent
+
+
+Create button to finalize
+
+
+
+⚙️ Settings:
+Editable account info
+
+
+Logout option included
+
+
