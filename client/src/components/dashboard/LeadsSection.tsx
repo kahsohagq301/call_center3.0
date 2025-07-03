@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Search, Filter, X } from "lucide-react";
+import { format } from "date-fns";
 import { apiRequest } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +25,12 @@ export default function LeadsSection() {
   const [showLeadDetailModal, setShowLeadDetailModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedTransferAgent, setSelectedTransferAgent] = useState("");
+  
+  // Filter states
+  const [selectedAgent, setSelectedAgent] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -107,8 +118,47 @@ export default function LeadsSection() {
     }
   };
 
-  const displayLeads = user?.role === "super_admin" ? allLeads : leads;
+  // Filter and search logic
+  const ccAgents = users?.filter(u => u.role === "cc_agent") || [];
   const croAgents = users?.filter(u => u.role === "cro_agent") || [];
+  
+  const filteredLeads = useMemo(() => {
+    let leadsToFilter = user?.role === "super_admin" ? allLeads : leads;
+    if (!leadsToFilter) return [];
+
+    // Apply filters
+    let filtered = leadsToFilter;
+
+    // Agent filter
+    if (selectedAgent !== "all") {
+      filtered = filtered.filter(lead => lead.agentId === parseInt(selectedAgent));
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(lead => 
+        lead.customerName.toLowerCase().includes(query) ||
+        lead.customerNumber.toLowerCase().includes(query) ||
+        lead.description?.toLowerCase().includes(query) ||
+        users?.find(u => u.id === lead.agentId)?.name.toLowerCase().includes(query)
+      );
+    }
+
+    // Date filter
+    if (dateFrom) {
+      filtered = filtered.filter(lead => new Date(lead.createdAt) >= dateFrom);
+    }
+    if (dateTo) {
+      const endDate = new Date(dateTo);
+      endDate.setHours(23, 59, 59, 999); // Include the entire end date
+      filtered = filtered.filter(lead => new Date(lead.createdAt) <= endDate);
+    }
+
+    return filtered;
+  }, [allLeads, leads, user?.role, selectedAgent, searchQuery, dateFrom, dateTo, users]);
+
+  const displayLeads = filteredLeads;
 
   if (isLoading) {
     return (
@@ -140,12 +190,186 @@ export default function LeadsSection() {
         )}
       </div>
 
+      {/* Filter Controls - Only for Super Admin */}
+      {user?.role === "super_admin" && (
+        <Card className="shadow-sm mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="w-5 h-5" />
+              Filter & Search Leads
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Agent Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Filter by Agent</label>
+                <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Agents</SelectItem>
+                    {ccAgents.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id.toString()}>
+                        {agent.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Search Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Search</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by name, phone, notes..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Date Range Filter */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Date Range</label>
+                <div className="flex gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateFrom ? format(dateFrom, "MMM dd") : "From"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateFrom}
+                        onSelect={setDateFrom}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateTo ? format(dateTo, "MMM dd") : "To"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateTo}
+                        onSelect={setDateTo}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+
+            {/* Active Filters & Clear All */}
+            {(selectedAgent !== "all" || searchQuery || dateFrom || dateTo) && (
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAgent !== "all" && (
+                      <Badge variant="secondary" className="gap-1">
+                        Agent: {ccAgents.find(a => a.id.toString() === selectedAgent)?.name}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedAgent("all")}
+                          className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    )}
+                    {searchQuery && (
+                      <Badge variant="secondary" className="gap-1">
+                        Search: "{searchQuery}"
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSearchQuery("")}
+                          className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    )}
+                    {(dateFrom || dateTo) && (
+                      <Badge variant="secondary" className="gap-1">
+                        Date: {dateFrom ? format(dateFrom, "MMM dd") : "..."} - {dateTo ? format(dateTo, "MMM dd") : "..."}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setDateFrom(undefined);
+                            setDateTo(undefined);
+                          }}
+                          className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedAgent("all");
+                      setSearchQuery("");
+                      setDateFrom(undefined);
+                      setDateTo(undefined);
+                    }}
+                  >
+                    Clear All Filters
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Leads Table */}
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle>
-            {user?.role === "super_admin" ? "All Leads" : 
-             user?.role === "cro_agent" ? "Transferred Leads" : "My Leads"}
+          <CardTitle className="flex items-center justify-between">
+            <span>
+              {user?.role === "super_admin" ? "All Leads" : 
+               user?.role === "cro_agent" ? "Transferred Leads" : "My Leads"}
+            </span>
+            {user?.role === "super_admin" && (
+              <Badge variant="outline" className="text-sm">
+                {displayLeads?.length || 0} of {(allLeads?.length || 0)} leads
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
