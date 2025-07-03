@@ -360,19 +360,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes
-  app.get("/api/admin/users", requireAuth, async (req: any, res) => {
+  // Route for CC agents to get CRO agents for transfer
+  app.get("/api/cro-agents", requireAuth, async (req: AuthenticatedRequest, res) => {
     try {
       const user = await storage.getUser(req.session.userId);
-      if (user?.role !== "super_admin") {
+      if (user?.role !== "cc_agent") {
         return res.status(403).json({ message: "Access denied" });
       }
 
       const users = await storage.getAllUsers();
-      res.json(users);
+      const croAgents = users.filter(u => u.role === "cro_agent");
+      res.json(croAgents.map(agent => ({
+        id: agent.id,
+        email: agent.email,
+        name: agent.name,
+        role: agent.role,
+      })));
     } catch (error) {
-      console.error("Get users error:", error);
-      res.status(500).json({ message: "Failed to get users" });
+      console.error("Get CRO agents error:", error);
+      res.status(500).json({ message: "Failed to get CRO agents" });
     }
   });
 

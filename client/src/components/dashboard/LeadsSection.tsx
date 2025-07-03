@@ -48,7 +48,12 @@ export default function LeadsSection() {
 
   const { data: users } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
-    enabled: user?.role === "cc_agent" || user?.role === "super_admin",
+    enabled: user?.role === "super_admin",
+  });
+
+  const { data: croAgentsData } = useQuery<User[]>({
+    queryKey: ["/api/cro-agents"],
+    enabled: user?.role === "cc_agent",
   });
 
   const transferLeadMutation = useMutation({
@@ -120,7 +125,7 @@ export default function LeadsSection() {
 
   // Filter and search logic
   const ccAgents = users?.filter(u => u.role === "cc_agent") || [];
-  const croAgents = users?.filter(u => u.role === "cro_agent") || [];
+  const croAgentsList = user?.role === "cc_agent" ? (croAgentsData || []) : (users?.filter(u => u.role === "cro_agent") || []);
   
   const filteredLeads = useMemo(() => {
     let leadsToFilter = user?.role === "super_admin" ? allLeads : leads;
@@ -479,7 +484,7 @@ export default function LeadsSection() {
                   <SelectValue placeholder="Choose CRO Agent" />
                 </SelectTrigger>
                 <SelectContent>
-                  {croAgents.map((agent) => (
+                  {croAgentsList.map((agent) => (
                     <SelectItem key={agent.id} value={agent.id.toString()}>
                       {agent.name} ({agent.email})
                     </SelectItem>
