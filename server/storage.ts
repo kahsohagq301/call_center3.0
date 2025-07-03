@@ -70,19 +70,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const now = new Date().toISOString();
-    const [user] = await db.insert(users).values({
-      ...insertUser,
-      createdAt: now,
-      updatedAt: now
-    }).returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async updateUser(id: number, updateData: Partial<InsertUser>): Promise<User> {
     const [user] = await db
       .update(users)
-      .set({ ...updateData, updatedAt: new Date().toISOString() })
+      .set(updateData)
       .where(eq(users.id, id))
       .returning();
     return user;
@@ -108,7 +103,7 @@ export class DatabaseStorage implements IStorage {
   async updateCallNumberCategory(id: number, category: string): Promise<CallNumber> {
     const [number] = await db
       .update(callNumbers)
-      .set({ category, categorizedAt: new Date() })
+      .set({ category, categorizedAt: sql`now()` })
       .where(eq(callNumbers.id, id))
       .returning();
     return number;
@@ -142,7 +137,7 @@ export class DatabaseStorage implements IStorage {
   async updateLead(id: number, updateData: Partial<InsertLead>): Promise<Lead> {
     const [lead] = await db
       .update(leads)
-      .set({ ...updateData, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(leads.id, id))
       .returning();
     return lead;
@@ -153,8 +148,7 @@ export class DatabaseStorage implements IStorage {
       .update(leads)
       .set({ 
         transferredTo,
-        status: "transferred",
-        updatedAt: new Date()
+        status: "transferred"
       })
       .where(eq(leads.id, id))
       .returning();
