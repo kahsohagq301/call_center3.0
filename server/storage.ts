@@ -24,6 +24,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
+  deleteUser(id: number): Promise<void>;
   getAllUsers(): Promise<User[]>;
 
   // Call number operations
@@ -81,6 +82,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -221,19 +226,19 @@ export class DatabaseStorage implements IStorage {
     totalUsers: number;
     transferredLeads: number;
   }> {
-    const [callsCount] = await db.select({ count: count() }).from(callNumbers);
-    const [leadsCount] = await db.select({ count: count() }).from(leads);
-    const [usersCount] = await db.select({ count: count() }).from(users);
-    const [transferredCount] = await db
-      .select({ count: count() })
-      .from(leads)
-      .where(eq(leads.status, "transferred"));
+    // Optimize by using parallel queries
+    const [callsResult, leadsResult, usersResult, transferredResult] = await Promise.all([
+      db.select({ count: count() }).from(callNumbers),
+      db.select({ count: count() }).from(leads),
+      db.select({ count: count() }).from(users),
+      db.select({ count: count() }).from(leads).where(eq(leads.status, "transferred"))
+    ]);
 
     return {
-      totalCalls: callsCount.count,
-      totalLeads: leadsCount.count,
-      totalUsers: usersCount.count,
-      transferredLeads: transferredCount.count,
+      totalCalls: callsResult[0].count,
+      totalLeads: leadsResult[0].count,
+      totalUsers: usersResult[0].count,
+      transferredLeads: transferredResult[0].count,
     };
   }
 }
