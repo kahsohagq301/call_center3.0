@@ -122,6 +122,10 @@ This is a full-stack Call Center CRM system built with modern web technologies. 
   - Added xlsx library for proper Excel file processing
   - Implemented support for multiple Bangladeshi phone number formats (+8801XXXXXXXXX, 8801XXXXXXXXX, 01XXXXXXXXX)
   - Enhanced Number Upload UI with format guidelines and better error handling
+  - Implemented comprehensive onboarding tutorial system for all user roles
+  - Added role-specific tutorials (CC Agent, CRO Agent, Super Admin)
+  - Created floating help button and tutorial trigger system
+  - Added welcome banner for new users with auto-tutorial launch
 - June 30, 2025. Initial setup
 
 ## User Preferences

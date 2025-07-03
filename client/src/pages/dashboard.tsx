@@ -9,6 +9,7 @@ import ReportsSection from "@/components/dashboard/ReportsSection";
 import SettingsSection from "@/components/dashboard/SettingsSection";
 import AccountsSection from "@/components/dashboard/AccountsSection";
 import NumberUploadSection from "@/components/dashboard/NumberUploadSection";
+import OnboardingTrigger from "@/components/onboarding/OnboardingTrigger";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -56,6 +57,12 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      
+      {/* Onboarding Tutorial */}
+      <OnboardingTrigger 
+        userRole={user.role}
+        isNewUser={true} // You can add logic to detect new users
+      />
     </div>
   );
 }
