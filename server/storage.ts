@@ -4,6 +4,7 @@ import {
   leads,
   reports,
   dailyTasks,
+  numberUploads,
   type User,
   type InsertUser,
   type CallNumber,
@@ -14,6 +15,8 @@ import {
   type InsertReport,
   type DailyTask,
   type InsertDailyTask,
+  type NumberUpload,
+  type InsertNumberUpload,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, count, sql } from "drizzle-orm";
@@ -49,6 +52,11 @@ export interface IStorage {
   // Daily task operations
   getDailyTask(agentId: number, date: Date): Promise<DailyTask | undefined>;
   updateDailyTask(agentId: number, task: Partial<InsertDailyTask>): Promise<DailyTask>;
+
+  // Number upload operations
+  createNumberUpload(upload: InsertNumberUpload): Promise<NumberUpload>;
+  getNumberUploads(): Promise<NumberUpload[]>;
+  getNumberUploadsByAgent(agentId: number): Promise<NumberUpload[]>;
 
   // Analytics
   getStats(): Promise<{
@@ -240,6 +248,21 @@ export class DatabaseStorage implements IStorage {
       totalUsers: usersResult[0].count,
       transferredLeads: transferredResult[0].count,
     };
+  }
+
+  async createNumberUpload(upload: InsertNumberUpload): Promise<NumberUpload> {
+    const [numberUpload] = await db.insert(numberUploads).values(upload).returning();
+    return numberUpload;
+  }
+
+  async getNumberUploads(): Promise<NumberUpload[]> {
+    return await db.select().from(numberUploads).orderBy(desc(numberUploads.uploadDate));
+  }
+
+  async getNumberUploadsByAgent(agentId: number): Promise<NumberUpload[]> {
+    return await db.select().from(numberUploads)
+      .where(eq(numberUploads.assignedAgentId, agentId))
+      .orderBy(desc(numberUploads.uploadDate));
   }
 }
 

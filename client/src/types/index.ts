@@ -54,3 +54,12 @@ export interface Stats {
   totalUsers: number;
   transferredLeads: number;
 }
+
+export interface NumberUpload {
+  id: number;
+  uploadedBy: number;
+  assignedAgentId: number;
+  fileName: string;
+  numbersCount: number;
+  uploadDate: string;
+}

@@ -200,6 +200,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Number upload routes
+  app.post("/api/admin/upload-numbers", requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (user?.role !== "super_admin") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { assignedAgentId, phoneNumbers, fileName } = req.body;
+      
+      if (!assignedAgentId || !phoneNumbers || !Array.isArray(phoneNumbers)) {
+        return res.status(400).json({ message: "Invalid upload data" });
+      }
+
+      // Create number upload record
+      const upload = await storage.createNumberUpload({
+        uploadedBy: req.session.userId,
+        assignedAgentId: parseInt(assignedAgentId),
+        fileName: fileName || 'numbers.xlsx',
+        numbersCount: phoneNumbers.length,
+      });
+
+      // Insert phone numbers
+      const callNumbers = phoneNumbers.map(phoneNumber => ({
+        phoneNumber: phoneNumber.toString(),
+        assignedAgentId: parseInt(assignedAgentId),
+      }));
+
+      await storage.uploadCallNumbers(callNumbers);
+
+      res.json({
+        message: "Numbers uploaded successfully",
+        upload,
+        numbersUploaded: phoneNumbers.length,
+      });
+    } catch (error) {
+      console.error("Upload numbers error:", error);
+      res.status(500).json({ message: "Failed to upload numbers" });
+    }
+  });
+
+  app.get("/api/admin/number-uploads", requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const user = await storage.getUser(req.session.userId);
+      if (user?.role !== "super_admin") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const uploads = await storage.getNumberUploads();
+      res.json(uploads);
+    } catch (error) {
+      console.error("Get number uploads error:", error);
+      res.status(500).json({ message: "Failed to get number uploads" });
+    }
+  });
+
   // Super admin route to upload numbers
   app.post("/api/admin/upload-numbers", requireAuth, async (req: any, res) => {
     try {

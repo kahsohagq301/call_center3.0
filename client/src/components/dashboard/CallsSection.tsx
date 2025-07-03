@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,9 @@ import { CallNumber } from "@/types";
 
 export default function CallsSection() {
   const [searchNumber, setSearchNumber] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 100;
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -48,45 +50,86 @@ export default function CallsSection() {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/calls"] });
+    setCurrentPage(1); // Reset to first page on refresh
   };
 
-  const filteredCalls = calls?.filter(call => {
-    const matchesSearch = !searchNumber || call.phoneNumber.includes(searchNumber);
-    const matchesCategory = !categoryFilter || call.category === categoryFilter;
-    return matchesSearch && matchesCategory;
-  }) || [];
+  // Filter and pagination logic
+  const filteredCalls = useMemo(() => {
+    if (!calls) return [];
 
-  const getBadgeVariant = (category?: string) => {
-    switch (category) {
-      case "interested":
-        return "default";
-      case "not_interested":
-        return "destructive";
-      case "busy":
-      case "no_answer":
-      case "switched_off":
-        return "secondary";
-      default:
-        return "outline";
+    let filtered = calls;
+
+    // Search filter
+    if (searchNumber.trim()) {
+      filtered = filtered.filter(call => 
+        call.phoneNumber.includes(searchNumber.trim())
+      );
     }
+
+    // Category filter
+    if (categoryFilter !== "all") {
+      if (categoryFilter === "uncategorized") {
+        filtered = filtered.filter(call => !call.category);
+      } else {
+        filtered = filtered.filter(call => call.category === categoryFilter);
+      }
+    }
+
+    // Sort: uncategorized first, then by creation date
+    filtered.sort((a, b) => {
+      // Uncategorized calls first
+      if (!a.category && b.category) return -1;
+      if (a.category && !b.category) return 1;
+      
+      // Then by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return filtered;
+  }, [calls, searchNumber, categoryFilter]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredCalls.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const currentCalls = filteredCalls.slice(startIndex, endIndex);
+
+  const handleCall = (phoneNumber: string) => {
+    // Open dialer with the phone number
+    window.open(`tel:${phoneNumber}`);
   };
 
-  const getCategoryLabel = (category?: string) => {
-    switch (category) {
-      case "switched_off":
-        return "Switched Off";
-      case "busy":
-        return "Busy";
-      case "no_answer":
-        return "No Answer";
-      case "not_interested":
-        return "Not Interested";
-      case "interested":
-        return "Interested";
-      default:
-        return "Pending";
+  const getCategoryBadge = (category: string | null) => {
+    if (!category) {
+      return <Badge variant="outline">Uncategorized</Badge>;
     }
+
+    const categoryStyles = {
+      switched_off: "bg-gray-100 text-gray-800",
+      busy: "bg-yellow-100 text-yellow-800",
+      no_answer: "bg-blue-100 text-blue-800",
+      not_interested: "bg-red-100 text-red-800",
+      interested: "bg-green-100 text-green-800",
+    };
+
+    const categoryLabels = {
+      switched_off: "Switched Off",
+      busy: "Busy",
+      no_answer: "No Answer",
+      not_interested: "Not Interested",
+      interested: "Interested",
+    };
+
+    return (
+      <Badge className={categoryStyles[category as keyof typeof categoryStyles] || "bg-gray-100 text-gray-800"}>
+        {categoryLabels[category as keyof typeof categoryLabels] || category}
+      </Badge>
+    );
   };
+
+
+
+
 
   if (isLoading) {
     return (
@@ -193,9 +236,7 @@ export default function CallsSection() {
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getBadgeVariant(call.category)}>
-                        {getCategoryLabel(call.category)}
-                      </Badge>
+                      {getCategoryBadge(call.category)}
                     </TableCell>
                   </TableRow>
                 ))}

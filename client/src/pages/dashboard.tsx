@@ -8,6 +8,7 @@ import LeadsSection from "@/components/dashboard/LeadsSection";
 import ReportsSection from "@/components/dashboard/ReportsSection";
 import SettingsSection from "@/components/dashboard/SettingsSection";
 import AccountsSection from "@/components/dashboard/AccountsSection";
+import NumberUploadSection from "@/components/dashboard/NumberUploadSection";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -21,7 +22,8 @@ export default function Dashboard() {
       case "dashboard":
         return <DashboardSection />;
       case "calls":
-        return <CallsSection />;
+        // For Super Admin, calls section is "Number Upload"
+        return user.role === "super_admin" ? <NumberUploadSection /> : <CallsSection />;
       case "leads":
         return <LeadsSection />;
       case "reports":

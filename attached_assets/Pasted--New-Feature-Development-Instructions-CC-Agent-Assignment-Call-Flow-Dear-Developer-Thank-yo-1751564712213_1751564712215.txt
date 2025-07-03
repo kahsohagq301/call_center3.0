@@ -1,0 +1,104 @@
+📦 New Feature Development Instructions – CC Agent Assignment & Call Flow
+
+Dear Developer,
+
+Thank you for your continued work on the Call Center CRM system. To ensure full functionality and real-world usability, we now need the final key features to be developed and implemented as outlined below:
+
+✅ 1. Number Upload & Agent Assignment (Super Admin Role)
+Objective:
+Enable the Super Admin to upload number lists for each CC Agent individually, using an Excel file.
+
+Required Development:
+
+In the “Number Upload” section:
+
+Keep the current interface.
+
+Ensure the dropdown lists all CC Agent accounts.
+
+Admin selects one CC Agent and uploads an Excel file containing phone numbers.
+
+On Submission:
+
+The numbers must be stored and correctly assigned to the selected agent.
+
+This assignment must be linked by a unique identifier (e.g., agent ID or email).
+
+The assigned numbers will appear in that agent’s Calls Section only.
+
+Additional Improvements:
+
+Show upload history with:
+
+Upload Date
+
+Agent Assigned
+
+Number Count
+
+Add filters:
+
+By CC Agent
+
+By Date
+
+✅ 2. Calls Section View & Actions (CC Agent Role)
+Objective:
+Allow CC Agents to see, call, and categorize their assigned numbers.
+
+Required Development:
+
+In the Calls Section of the CC Agent role:
+
+Display the numbers uploaded and assigned by Super Admin.
+
+Table Columns:
+
+SL No.
+
+Customer Number
+
+Call Button
+
+Category Dropdown (Busy, No Answer, Switched Off, Not Interested, Interested)
+
+Functional Logic:
+
+Once a category is selected:
+
+That number should automatically delete after 24 hours.
+
+Uncategorized numbers remain in the list.
+
+Add:
+
+Refresh Button → uncategorized numbers show on top
+
+Search bar (by number)
+
+Category Filter dropdown
+
+Pagination (100 records per page)
+
+🎯 Real-Life Use Case:
+Admin uploads numbers individually for 5 different CC Agents.
+
+Each agent logs in, sees only their numbers, and starts calling.
+
+After completing a call, the agent categorizes it.
+
+The number gets auto-removed after 24 hours (if categorized).
+
+Leads are added based on call outcomes.
+
+Please implement this as a new feature enhancement, not as a bug fix.
+
+Let me know if you need:
+
+Sample Excel format
+
+Test accounts
+
+Table schema
+
+Thanks again!

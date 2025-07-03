@@ -68,6 +68,16 @@ export const dailyTasks = pgTable("daily_tasks", {
   reportSubmitted: boolean("report_submitted").default(false), // PostgreSQL uses boolean
 });
 
+// Number uploads table
+export const numberUploads = pgTable("number_uploads", {
+  id: serial("id").primaryKey(),
+  uploadedBy: integer("uploaded_by").references(() => users.id),
+  assignedAgentId: integer("assigned_agent_id").references(() => users.id),
+  fileName: text("file_name").notNull(),
+  numbersCount: integer("numbers_count").notNull(),
+  uploadDate: timestamp("upload_date").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   callNumbers: many(callNumbers),
@@ -110,6 +120,17 @@ export const dailyTasksRelations = relations(dailyTasks, ({ one }) => ({
   }),
 }));
 
+export const numberUploadsRelations = relations(numberUploads, ({ one }) => ({
+  uploader: one(users, {
+    fields: [numberUploads.uploadedBy],
+    references: [users.id],
+  }),
+  assignedAgent: one(users, {
+    fields: [numberUploads.assignedAgentId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -140,6 +161,11 @@ export const insertDailyTaskSchema = createInsertSchema(dailyTasks).omit({
   taskDate: true,
 });
 
+export const insertNumberUploadSchema = createInsertSchema(numberUploads).omit({
+  id: true,
+  uploadDate: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -151,3 +177,5 @@ export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type DailyTask = typeof dailyTasks.$inferSelect;
 export type InsertDailyTask = z.infer<typeof insertDailyTaskSchema>;
+export type NumberUpload = typeof numberUploads.$inferSelect;
+export type InsertNumberUpload = z.infer<typeof insertNumberUploadSchema>;
