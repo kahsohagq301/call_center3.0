@@ -45,6 +45,10 @@ export default function CallsSection() {
   });
 
   const handleCategoryChange = (callId: number, category: string) => {
+    // Don't update if user selects "uncategorized" - it's just a placeholder
+    if (category === "uncategorized") {
+      return;
+    }
     updateCategoryMutation.mutate({ id: callId, category });
   };
 
@@ -221,14 +225,14 @@ export default function CallsSection() {
                     </TableCell>
                     <TableCell>
                       <Select 
-                        value={call.category || ""} 
+                        value={call.category || "uncategorized"} 
                         onValueChange={(value) => handleCategoryChange(call.id, value)}
                       >
                         <SelectTrigger className="w-40">
                           <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Select Category</SelectItem>
+                          <SelectItem value="uncategorized">Select Category</SelectItem>
                           <SelectItem value="interested">Interested</SelectItem>
                           <SelectItem value="not_interested">Not Interested</SelectItem>
                           <SelectItem value="busy">Busy</SelectItem>

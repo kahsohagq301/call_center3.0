@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./storage";
 
 const app = express();
 app.use(express.json());
@@ -67,4 +68,31 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Schedule cleanup of categorized numbers every hour
+  const startCleanupScheduler = () => {
+    const cleanupInterval = setInterval(async () => {
+      try {
+        const deletedCount = await storage.cleanupCategorizedNumbers();
+        if (deletedCount > 0) {
+          log(`Cleaned up ${deletedCount} categorized call numbers older than 24 hours`);
+        }
+      } catch (error) {
+        log(`Cleanup error: ${error}`);
+      }
+    }, 60 * 60 * 1000); // Run every hour (3600000 ms)
+
+    // Cleanup on server shutdown
+    process.on('SIGINT', () => {
+      clearInterval(cleanupInterval);
+      process.exit(0);
+    });
+    
+    process.on('SIGTERM', () => {
+      clearInterval(cleanupInterval);
+      process.exit(0);
+    });
+  };
+
+  startCleanupScheduler();
 })();

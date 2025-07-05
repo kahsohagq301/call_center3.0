@@ -19,7 +19,7 @@ import {
   type InsertNumberUpload,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, count, sql } from "drizzle-orm";
+import { eq, and, desc, count, sql, isNotNull, lt } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -65,6 +65,9 @@ export interface IStorage {
     totalUsers: number;
     transferredLeads: number;
   }>;
+
+  // Cleanup categorized numbers after 24 hours
+  cleanupCategorizedNumbers(): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -263,6 +266,22 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(numberUploads)
       .where(eq(numberUploads.assignedAgentId, agentId))
       .orderBy(desc(numberUploads.uploadDate));
+  }
+
+  async cleanupCategorizedNumbers(): Promise<number> {
+    // Delete call numbers that have been categorized for more than 24 hours
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const result = await db
+      .delete(callNumbers)
+      .where(
+        and(
+          sql`category IS NOT NULL`,
+          sql`categorized_at < ${twentyFourHoursAgo}`
+        )
+      )
+      .returning();
+    
+    return result.length;
   }
 }
 
