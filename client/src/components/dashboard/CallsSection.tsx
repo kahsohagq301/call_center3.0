@@ -166,7 +166,8 @@ export default function CallsSection() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="uncategorized">Uncategorized</SelectItem>
                 <SelectItem value="interested">Interested</SelectItem>
                 <SelectItem value="not_interested">Not Interested</SelectItem>
                 <SelectItem value="busy">Busy</SelectItem>
