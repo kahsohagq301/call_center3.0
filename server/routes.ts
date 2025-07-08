@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { insertUserSchema, insertLeadSchema, insertReportSchema, insertCallNumberSchema } from "@shared/schema";
 import bcrypt from "bcrypt";
 import session from "express-session";
-import MemoryStore from "memorystore";
+import ConnectPgSimple from "connect-pg-simple";
+import { pool } from "./db";
 
 // Extend session interface
 declare module "express-session" {
@@ -22,11 +23,13 @@ interface AuthenticatedRequest extends Request {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Session configuration using MemoryStore for development
-  const MemStore = MemoryStore(session);
+  // Session configuration using PostgreSQL store
+  const pgSession = ConnectPgSimple(session);
   app.use(session({
-    store: new MemStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
+    store: new pgSession({
+      pool: pool,
+      tableName: 'sessions',
+      createTableIfMissing: true
     }),
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
     resave: false,
