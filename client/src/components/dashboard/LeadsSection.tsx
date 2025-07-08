@@ -139,10 +139,11 @@ export default function LeadsSection() {
       filtered = filtered.filter(lead => lead.agentId === parseInt(selectedAgent));
     }
 
-    // Search filter
+    // Search filter - includes Profile ID, customer name, phone number, description, and agent name
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(lead => 
+        lead.profileId?.toLowerCase().includes(query) ||
         lead.customerName.toLowerCase().includes(query) ||
         lead.customerNumber.toLowerCase().includes(query) ||
         lead.description?.toLowerCase().includes(query) ||
@@ -195,104 +196,106 @@ export default function LeadsSection() {
         )}
       </div>
 
-      {/* Filter Controls - Only for Super Admin */}
-      {user?.role === "super_admin" && (
-        <Card className="shadow-sm mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Filter & Search Leads
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Agent Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Filter by Agent</label>
-                <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Agents</SelectItem>
-                    {ccAgents.map((agent) => (
-                      <SelectItem key={agent.id} value={agent.id.toString()}>
-                        {agent.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+      {/* Search Bar - Available for All Users */}
+      <Card className="shadow-sm mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="w-5 h-5" />
+            Search Leads
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search Filter - Available for All Users */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search by Profile ID, name, phone, notes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                )}
               </div>
+            </div>
 
-              {/* Search Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Search</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search by name, phone, notes..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                  {searchQuery && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-                    >
-                      <X className="w-3 h-3" />
-                    </Button>
-                  )}
+            {/* Agent Filter and Date Range - Only for Super Admin */}
+            {user?.role === "super_admin" && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Filter by Agent</label>
+                  <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select agent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Agents</SelectItem>
+                      {ccAgents.map((agent) => (
+                        <SelectItem key={agent.id} value={agent.id.toString()}>
+                          {agent.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
 
-              {/* Date Range Filter */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Date Range</label>
-                <div className="flex gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateFrom ? format(dateFrom, "MMM dd") : "From"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateFrom}
-                        onSelect={setDateFrom}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateTo ? format(dateTo, "MMM dd") : "To"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={setDateTo}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Date Range</label>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateFrom ? format(dateFrom, "MMM dd") : "From"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateFrom}
+                          onSelect={setDateFrom}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateTo ? format(dateTo, "MMM dd") : "To"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateTo}
+                          onSelect={setDateTo}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-              </div>
+              </>
+            )}
             </div>
 
             {/* Active Filters & Clear All */}
@@ -360,7 +363,6 @@ export default function LeadsSection() {
             )}
           </CardContent>
         </Card>
-      )}
 
       {/* Leads Table */}
       <Card className="shadow-sm">
