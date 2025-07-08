@@ -145,8 +145,35 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(leads.updatedAt));
   }
 
+  // Generate unique profile ID
+  private async generateUniqueProfileId(): Promise<string> {
+    let profileId: string;
+    let isUnique = false;
+    
+    while (!isUnique) {
+      // Generate random 5-digit number
+      const randomNum = Math.floor(10000 + Math.random() * 90000);
+      profileId = `GB-${randomNum}`;
+      
+      // Check if this profile ID already exists
+      const existing = await db.query.leads.findFirst({
+        where: (leads, { eq }) => eq(leads.profileId, profileId)
+      });
+      
+      if (!existing) {
+        isUnique = true;
+      }
+    }
+    
+    return profileId!;
+  }
+
   async createLead(lead: InsertLead): Promise<Lead> {
-    const [newLead] = await db.insert(leads).values(lead).returning();
+    const profileId = await this.generateUniqueProfileId();
+    const [newLead] = await db.insert(leads).values({
+      ...lead,
+      profileId
+    }).returning();
     return newLead;
   }
 

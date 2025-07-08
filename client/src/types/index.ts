@@ -18,6 +18,7 @@ export interface CallNumber {
 
 export interface Lead {
   id: number;
+  profileId: string;
   customerName: string;
   customerNumber: string;
   biodata?: string;

@@ -126,6 +126,14 @@ This is a full-stack Call Center CRM system built with modern web technologies. 
   - Added role-specific tutorials (CC Agent, CRO Agent, Super Admin)
   - Created floating help button and tutorial trigger system
   - Added welcome banner for new users with auto-tutorial launch
+- July 8, 2025. Enhanced Lead Management with Auto-generated Profile IDs
+  - Implemented auto-generated Profile ID feature for all leads across all user roles
+  - Profile IDs follow format GB-XXXXX (e.g., GB-45726, GB-62809) with guaranteed uniqueness
+  - Added Profile ID column to lead tables in CC Agent, CRO Agent, and Super Admin sections
+  - Profile ID displays prominently in lead details modal and Add Lead form (read-only)
+  - Updated database schema with profile_id field and unique constraint
+  - Migrated existing leads to include auto-generated Profile IDs
+  - Profile IDs serve as unique customer/lead identifiers across the system
 - July 8, 2025. Migration from Replit Agent to Standard Replit Environment
   - Successfully migrated Call Center CRM from Replit Agent to standard Replit environment
   - Updated database configuration to use external Neon PostgreSQL database

@@ -36,6 +36,7 @@ export const callNumbers = pgTable("call_numbers", {
 // Leads table
 export const leads = pgTable("leads", {
   id: serial("id").primaryKey(),
+  profileId: text("profile_id").notNull().unique(),
   customerName: text("customer_name").notNull(),
   customerNumber: text("customer_number").notNull(),
   biodata: text("biodata"), // File path or URL
@@ -146,6 +147,7 @@ export const insertCallNumberSchema = createInsertSchema(callNumbers).omit({
 
 export const insertLeadSchema = createInsertSchema(leads).omit({
   id: true,
+  profileId: true,
   createdAt: true,
   updatedAt: true,
 });

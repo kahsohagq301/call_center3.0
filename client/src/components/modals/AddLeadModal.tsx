@@ -103,6 +103,19 @@ export default function AddLeadModal({ isOpen, onClose }: AddLeadModalProps) {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
+            <Label className="block text-sm font-medium text-gray-700 mb-2">
+              Profile ID (Auto-generated)
+            </Label>
+            <Input
+              type="text"
+              value="Will be generated automatically"
+              className="form-input bg-gray-100 text-gray-500"
+              disabled
+              readOnly
+            />
+          </div>
+
+          <div>
             <Label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-2">
               Customer Name
             </Label>

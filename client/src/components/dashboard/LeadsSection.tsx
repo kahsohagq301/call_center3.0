@@ -383,6 +383,7 @@ export default function LeadsSection() {
               <TableHeader>
                 <TableRow>
                   <TableHead>No.</TableHead>
+                  <TableHead>Profile ID</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Phone Number</TableHead>
@@ -396,6 +397,7 @@ export default function LeadsSection() {
                 {displayLeads?.map((lead, index) => (
                   <TableRow key={lead.id}>
                     <TableCell>{index + 1}</TableCell>
+                    <TableCell className="font-mono text-sm font-medium text-blue-600">{lead.profileId}</TableCell>
                     <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell className="font-medium">{lead.customerName}</TableCell>
                     <TableCell>{lead.customerNumber}</TableCell>
@@ -534,6 +536,11 @@ export default function LeadsSection() {
           
           {selectedLead && (
             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Profile ID</label>
+                <p className="text-blue-600 font-mono font-bold text-lg">{selectedLead.profileId}</p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
                 <p className="text-gray-800 font-medium">{selectedLead.customerName}</p>
