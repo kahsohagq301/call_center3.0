@@ -53,12 +53,41 @@ export default function AddLeadModal({ isOpen, onClose }: AddLeadModalProps) {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    let biodataPath = undefined;
+    
+    // First upload the file if present
+    if (biodata) {
+      try {
+        const fileFormData = new FormData();
+        fileFormData.append('biodata', biodata);
+        
+        const uploadResponse = await fetch('/api/upload/biodata', {
+          method: 'POST',
+          body: fileFormData,
+        });
+        
+        if (uploadResponse.ok) {
+          const result = await uploadResponse.json();
+          biodataPath = result.filePath;
+        } else {
+          throw new Error('File upload failed');
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to upload biodata file",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     
     const leadData = {
       ...formData,
-      biodata: biodata ? URL.createObjectURL(biodata) : undefined,
+      biodata: biodataPath,
     };
 
     addLeadMutation.mutate(leadData);

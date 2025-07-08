@@ -6,6 +6,9 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import ConnectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 // Extend session interface
 declare module "express-session" {
@@ -23,6 +26,37 @@ interface AuthenticatedRequest extends Request {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configure multer for file uploads
+  const storage_multer = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadPath = 'uploads/biodata';
+      if (!fs.existsSync(uploadPath)) {
+        fs.mkdirSync(uploadPath, { recursive: true });
+      }
+      cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+
+  const upload = multer({ 
+    storage: storage_multer,
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype === 'application/pdf' || 
+          file.mimetype === 'application/msword' || 
+          file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        cb(null, true);
+      } else {
+        cb(new Error('Only PDF and Word documents are allowed!'));
+      }
+    },
+    limits: {
+      fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+  });
+
   // Session configuration using PostgreSQL store
   const pgSession = ConnectPgSimple(session);
   app.use(session({
@@ -299,6 +333,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get transferred leads error:", error);
       res.status(500).json({ message: "Failed to get transferred leads" });
+    }
+  });
+
+  // File upload endpoint for biodata
+  app.post("/api/upload/biodata", requireAuth, upload.single('biodata'), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      const filePath = `/uploads/biodata/${req.file.filename}`;
+      res.json({ filePath });
+    } catch (error) {
+      console.error("File upload error:", error);
+      res.status(500).json({ message: "Failed to upload file" });
+    }
+  });
+
+  // Serve uploaded files
+  app.get("/uploads/:folder/:filename", (req, res) => {
+    const { folder, filename } = req.params;
+    const filePath = path.join(process.cwd(), 'uploads', folder, filename);
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: "File not found" });
     }
   });
 
