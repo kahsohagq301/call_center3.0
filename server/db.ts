@@ -21,7 +21,11 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
-  max: 10
+  max: 10,
+  // Optimize for Neon database
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
+  allowExitOnIdle: false
 });
 export const db = drizzle({ client: pool, schema });
 
@@ -70,7 +74,44 @@ async function initializeDatabase() {
   }
 }
 
+// Keep-alive mechanism to prevent Neon database sleep
+let keepAliveInterval: NodeJS.Timeout;
+
+async function startKeepAlive() {
+  // Ping database every 4 minutes (240000ms) to prevent sleep
+  keepAliveInterval = setInterval(async () => {
+    try {
+      await pool.query('SELECT 1');
+      console.log('Database keep-alive ping successful');
+    } catch (error) {
+      console.error('Database keep-alive ping failed:', error);
+    }
+  }, 4 * 60 * 1000); // 4 minutes
+  
+  console.log('Database keep-alive mechanism started');
+}
+
+// Cleanup on server shutdown
+process.on('SIGINT', () => {
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    console.log('Database keep-alive stopped');
+  }
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    console.log('Database keep-alive stopped');
+  }
+  process.exit(0);
+});
+
 // Call initialization with a delay to allow server to start
 setTimeout(() => {
-  initializeDatabase();
+  initializeDatabase().then(() => {
+    // Start keep-alive after successful database initialization
+    startKeepAlive();
+  });
 }, 1000);

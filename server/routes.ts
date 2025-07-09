@@ -83,6 +83,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
+  // Health check endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      await pool.query('SELECT 1');
+      res.status(200).json({ 
+        status: "healthy", 
+        database: "connected",
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(503).json({ 
+        status: "unhealthy", 
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Database ping endpoint (can be used for external monitoring)
+  app.get("/api/ping", async (req, res) => {
+    try {
+      const result = await pool.query('SELECT NOW() as server_time');
+      res.status(200).json({ 
+        message: "Database ping successful",
+        server_time: result.rows[0].server_time,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(503).json({ 
+        message: "Database ping failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/login", async (req, res) => {
     try {
