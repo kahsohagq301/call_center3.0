@@ -405,7 +405,10 @@ export default function LeadsSection() {
                     <TableCell>{lead.customerNumber}</TableCell>
                     {(user?.role === "super_admin" || user?.role === "cro_agent") && (
                       <TableCell>
-                        {users?.find(u => u.id === lead.agentId)?.name || "Unknown"}
+                        {user?.role === "cro_agent" 
+                          ? (lead.agentName || "Unknown")
+                          : (users?.find(u => u.id === lead.agentId)?.name || "Unknown")
+                        }
                       </TableCell>
                     )}
                     <TableCell>{getStatusBadge(lead.status)}</TableCell>

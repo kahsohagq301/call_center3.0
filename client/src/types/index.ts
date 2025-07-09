@@ -28,6 +28,9 @@ export interface Lead {
   transferredTo?: number;
   createdAt: string;
   updatedAt: string;
+  // Additional fields for transferred leads
+  agentName?: string;
+  agentEmail?: string;
 }
 
 export interface Report {

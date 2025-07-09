@@ -139,8 +139,24 @@ export class DatabaseStorage implements IStorage {
 
   async getTransferredLeads(agentId: number): Promise<Lead[]> {
     return await db
-      .select()
+      .select({
+        id: leads.id,
+        profileId: leads.profileId,
+        customerName: leads.customerName,
+        customerNumber: leads.customerNumber,
+        biodata: leads.biodata,
+        description: leads.description,
+        agentId: leads.agentId,
+        status: leads.status,
+        transferredTo: leads.transferredTo,
+        createdAt: leads.createdAt,
+        updatedAt: leads.updatedAt,
+        // Include agent information for the "From Agent" column
+        agentName: users.name,
+        agentEmail: users.email
+      })
       .from(leads)
+      .leftJoin(users, eq(leads.agentId, users.id))
       .where(eq(leads.transferredTo, agentId))
       .orderBy(desc(leads.updatedAt));
   }
